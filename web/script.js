@@ -1,5 +1,5 @@
 // Configuration
-const API_URL = 'http://localhost:5000';
+const API_URL = '';
 const ROI_SIZE = 120;
 const FRAME_RATE = 30;
 
@@ -49,7 +49,7 @@ const colorRGBMap = {
 // Check API connection
 async function checkAPI() {
     try {
-        const response = await fetch(`${API_URL}/health`);
+        const response = await fetch(`/health`);
         if (response.ok) {
             apiConnected = true;
             apiStatus.className = 'api-status connected';
@@ -170,7 +170,7 @@ function detectFrame() {
 // Send prediction request
 async function sendPrediction(r, g, b) {
     try {
-        const response = await fetch(`${API_URL}/predict`, {
+        const response = await fetch(`/predict`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -326,7 +326,7 @@ function sendImagePrediction(imageData) {
         return;
     }
 
-    fetch(`${API_URL}/predict-image`, {
+    fetch(`/predict-image`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
