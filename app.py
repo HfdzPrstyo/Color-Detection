@@ -9,14 +9,15 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # Get paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# MODELS_DIR = os.path.join(BASE_DIR, 'models')
-MODELS_DIR = 'models'
+# If this `app.py` is at project root use its folder as BASE_DIR
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, 'models')
 
 # Load model dan scaler dari models folder
 print("Loading model and scaler...")
 print(f"Base directory: {BASE_DIR}")
 print(f"Models path: {MODELS_DIR}")
+
 try:
     model_path = os.path.join(MODELS_DIR, "knn_color_model.pkl")
     scaler_path = os.path.join(MODELS_DIR, "scaler.pkl")
@@ -41,6 +42,7 @@ except Exception as e:
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""

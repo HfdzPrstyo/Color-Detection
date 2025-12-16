@@ -1,5 +1,5 @@
 // Configuration
-const API_URL = '';
+const API_URL = 'https://color-detection-production.up.railway.app';
 const ROI_SIZE = 120;
 const FRAME_RATE = 30;
 
@@ -49,7 +49,8 @@ const colorRGBMap = {
 // Check API connection
 async function checkAPI() {
     try {
-        const response = await fetch(`/health`);
+        const response = await fetch(`${API_URL}/health`);
+        console.log('API Health Check Response:', response);
         if (response.ok) {
             apiConnected = true;
             apiStatus.className = 'api-status connected';
@@ -170,7 +171,7 @@ function detectFrame() {
 // Send prediction request
 async function sendPrediction(r, g, b) {
     try {
-        const response = await fetch(`/predict`, {
+        const response = await fetch(`${API_URL}/predict`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -326,7 +327,7 @@ function sendImagePrediction(imageData) {
         return;
     }
 
-    fetch(`/predict-image`, {
+    fetch(`${API_URL}/predict-image`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
