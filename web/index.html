@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Detection - KNN Model</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Color Detection</h1>
+            <p class="subtitle">Real-time Color Recognition using KNN Model</p>
+        </header>
+
+        <div class="api-status" id="apiStatus"></div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="camera">
+                <span class="tab-icon">📷</span> Live Camera
+            </button>
+            <button class="tab-btn" data-tab="upload">
+                <span class="tab-icon">📁</span> Upload Image
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- Camera Section -->
+            <div class="camera-section tab-content active" id="camera-tab">
+                <div class="camera-container">
+                    <video id="video" playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="roi-overlay"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-start" id="startBtn">START CAMERA</button>
+                    <button class="btn-stop" id="stopBtn" disabled>STOP CAMERA</button>
+                </div>
+
+                <div class="status" id="status"></div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="camera-section tab-content" id="upload-tab">
+                <div class="upload-container">
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">Click atau drag image di sini</p>
+                        <p class="upload-subtext">Support: JPG, PNG, GIF, WebP</p>
+                    </div>
+                    <div id="uploadedImage" style="display: none;">
+                        <img id="previewImage" src="" alt="Preview" style="max-width: 100%; border-radius: 10px;">
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-start" id="selectImageBtn">SELECT IMAGE</button>
+                    <button class="btn-stop" id="clearImageBtn" disabled>CLEAR</button>
+                </div>
+
+                <div class="status" id="uploadStatus"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <!-- Main Result -->
+                <div class="result-card">
+                    <div class="result-label">Detected Color</div>
+                    <div class="result-value" id="colorName">-</div>
+                    <div class="result-label" style="margin-top: 15px;">Confidence</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.85em; color: #666; margin-top: 5px;">
+                        <span id="confidencePercent">0%</span>
+                    </div>
+
+                    <div class="color-preview">
+                        <div class="color-box roi-color" id="roiColor"></div>
+                        <div class="color-box predicted-color" id="predictedColor"></div>
+                    </div>
+                </div>
+
+                <!-- RGB/HSV Data -->
+                <div class="result-card">
+                    <div class="result-label">Color Values</div>
+                    <div class="data-display">
+                        <div class="data-item">
+                            <div class="data-label">Red</div>
+                            <div class="data-value" id="valueR">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Green</div>
+                            <div class="data-value" id="valueG">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Blue</div>
+                            <div class="data-value" id="valueB">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Hue</div>
+                            <div class="data-value" id="valueH">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Saturation</div>
+                            <div class="data-value" id="valueS">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Value</div>
+                            <div class="data-value" id="valueV">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Predictions -->
+                <div class="predictions-list">
+                    <div class="predictions-title">Top Predictions</div>
+                    <div id="predictionsList">
+                        <div style="color: #999; text-align: center; padding: 20px;">
+                            Start camera to see predictions
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
