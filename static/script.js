@@ -31,6 +31,10 @@ let isRunning = false;
 let apiConnected = false;
 let selectedImage = null;
 
+// Camera state
+let currentFacingMode = 'user'; // 'user' = depan, 'environment' = belakang
+let currentStream = null;
+
 // Color names to RGB mapping for preview
 const colorRGBMap = {
     'Red': [255, 0, 0],
@@ -66,11 +70,19 @@ async function checkAPI() {
 }
 
 // Start camera
-async function startCamera() {
+async function startCamera(facingMode = 'user') {
     try {
+        // Stop old stream if exists
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: 640, height: 480 }
+            video: { facingMode: facingMode, width: 640, height: 480 }
         });
+
+        currentStream = stream;
+        currentFacingMode = facingMode;
 
         video.srcObject = stream;
         video.onloadedmetadata = () => {
@@ -80,6 +92,13 @@ async function startCamera() {
             isRunning = true;
             startBtn.disabled = true;
             stopBtn.disabled = false;
+            
+            // Update camera type display
+            const cameraTypeSpan = document.getElementById('cameraType');
+            if (cameraTypeSpan) {
+                cameraTypeSpan.textContent = facingMode === 'user' ? 'Front Camera' : 'Rear Camera';
+            }
+            
             updateStatus('active', 'Camera is running. Position object in the green box.');
             detectFrame();
         };
@@ -91,13 +110,21 @@ async function startCamera() {
 // Stop camera
 function stopCamera() {
     isRunning = false;
-    const stream = video.srcObject;
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
     }
     video.srcObject = null;
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    
+    // Reset camera type display
+    const cameraTypeSpan = document.getElementById('cameraType');
+    if (cameraTypeSpan) {
+        cameraTypeSpan.textContent = 'Front Camera';
+    }
+    currentFacingMode = 'user';
+    
     updateStatus('', 'Camera stopped.');
     clearResults();
 }
@@ -235,6 +262,26 @@ function displayPredictions(predictions) {
     });
 }
 
+// Switch camera (front/rear)
+function switchCamera() {
+    if (!isRunning) {
+        updateStatus('error', 'Please start camera first');
+        return;
+    }
+
+    // Toggle between user (front) and environment (rear)
+    const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+    
+    // Start camera with new facing mode
+    startCamera(newFacingMode);
+    
+    // Update status
+    const message = newFacingMode === 'user' 
+        ? 'Switched to Front Camera' 
+        : 'Switched to Rear Camera';
+    updateStatus('active', message);
+}
+
 // TAB SWITCHING
 function switchTab(tabName) {
     // Hide all tabs
@@ -359,6 +406,12 @@ tabBtns.forEach(btn => {
 // Event listeners
 startBtn.addEventListener('click', startCamera);
 stopBtn.addEventListener('click', stopCamera);
+
+// Camera switch button
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+if (switchCameraBtn) {
+    switchCameraBtn.addEventListener('click', switchCamera);
+}
 
 // Initialize
 window.addEventListener('load', () => {

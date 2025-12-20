@@ -88,6 +88,7 @@ canvas {
 .controls {
     display: flex;
     gap: 10px;
+    margin-bottom: 15px;
 }
 
 button {
@@ -482,4 +483,42 @@ button {
 #previewImage {
     max-height: 100%;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Camera switch styling */
+.camera-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-switch {
+    background-color: #6c5ce7;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    flex: 0 1 auto;
+}
+
+.btn-switch:hover:not(:disabled) {
+    background-color: #5f3dc4;
+}
+
+.btn-switch:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.camera-type {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    min-width: 100px;
+    text-align: center;
 }

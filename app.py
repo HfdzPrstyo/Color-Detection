@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import joblib
 import numpy as np
-import cv2
 import os
+from PIL import Image
+import colorsys
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
@@ -60,10 +61,11 @@ def predict():
         g = data.get('g', 128)
         b = data.get('b', 128)
 
-        # Convert RGB to HSV
-        rgb = np.uint8([[[r, g, b]]])
-        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)[0][0]
-        h, s, v = int(hsv[0]), int(hsv[1]), int(hsv[2])
+        # Convert RGB to HSV using colorsys (PIL equivalent)
+        h_norm, s_norm, v_norm = colorsys.rgb_to_hsv(r/255.0, g/255.0, b/255.0)
+        h = int(h_norm * 180)  # OpenCV HSV: H is 0-180
+        s = int(s_norm * 255)  # OpenCV HSV: S is 0-255
+        v = int(v_norm * 255)  # OpenCV HSV: V is 0-255
 
         # Scale and predict
         hsv_array = np.array([[h, s, v]])
@@ -100,7 +102,6 @@ def predict_image():
     try:
         import base64
         from io import BytesIO
-        from PIL import Image
         
         data = request.get_json()
         image_data = data.get('image', '')
@@ -133,12 +134,13 @@ def predict_image():
         
         center_region = img_array[center_y:center_y+center_size, center_x:center_x+center_size]
         avg_rgb = center_region.mean(axis=(0, 1)).astype(int)
-        r, g, b = avg_rgb[0], avg_rgb[1], avg_rgb[2]
+        r, g, b = int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])
         
-        # Convert RGB to HSV
-        rgb = np.uint8([[[r, g, b]]])
-        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)[0][0]
-        h_val, s_val, v_val = int(hsv[0]), int(hsv[1]), int(hsv[2])
+        # Convert RGB to HSV using colorsys
+        h_norm, s_norm, v_norm = colorsys.rgb_to_hsv(r/255.0, g/255.0, b/255.0)
+        h_val = int(h_norm * 180)  # OpenCV HSV: H is 0-180
+        s_val = int(s_norm * 255)  # OpenCV HSV: S is 0-255
+        v_val = int(v_norm * 255)  # OpenCV HSV: V is 0-255
         
         # Scale and predict
         hsv_array = np.array([[h_val, s_val, v_val]])
@@ -161,7 +163,7 @@ def predict_image():
             'color': prediction,
             'confidence': float(max(probabilities)),
             'hsv': [h_val, s_val, v_val],
-            'rgb': [int(r), int(g), int(b)],
+            'rgb': [r, g, b],
             'predictions': top_predictions
         }), 200
 
@@ -182,5 +184,5 @@ def info():
         'n_features': model.n_features_in_
     }), 200
 
-# if __name__ == '__main__':
-#     app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
